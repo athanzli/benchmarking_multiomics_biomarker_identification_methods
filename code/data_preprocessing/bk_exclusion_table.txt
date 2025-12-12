@@ -1,0 +1,52 @@
+
+BK removal list
+
+LUSC	
+TP53 	No prognosis effects.	https://civicdb.org/links/evidence_items/2999
+STK11	Not for lung squamous cell carcinoma.	https://civicdb.org/links/evidence_items/750
+RB1	Low rating.	https://civicdb.org/links/evidence_items/1313
+PIM1	Low rating.	https://civicdb.org/links/evidence_items/1168
+CBLB	Low rating.	https://civicdb.org/links/evidence_items/1637
+EZH2	Non-significant result with lung cancer according to the source publication.	https://civicdb.org/links/evidence_items/731
+	
+LUAD	
+ACTA1	Low rating.	https://civicdb.org/links/evidence_items/1161
+PIM1	Low rating.	https://civicdb.org/links/evidence_items/1168
+RB1	Low rating.	https://civicdb.org/links/evidence_items/1313
+CBLB	Low rating.	https://civicdb.org/links/evidence_items/1637
+TP53	No prognosis effects.	https://civicdb.org/links/evidence_items/2999
+EZH2	Non-significant result with lung cancer according to the source publication.	https://civicdb.org/links/evidence_items/731
+MAP2K1	Not established as a prognostic biomarker according to the source publication.	https://civicdb.org/links/evidence_items/2935
+
+COADREAD
+CD274	Low rating.	https://civicdb.org/links/evidence_items/4856
+CD274	Non-significant for colorectal cancer prognosis.	https://civicdb.org/links/evidence_items/5507
+NOTCH1	Low rating.	https://civicdb.org/links/evidence_items/812
+MIR218-1	Not protein-coding; not present in our multi-omics gene set.	https://civicdb.org/links/evidence_items/1119
+
+HNSC
+CD274	Non-significant for head and neck cancer prognosis. https://civicdb.org/links/evidence_items/5507
+PTPN11  Low rating.  https://civicdb.org/links/evidence_items/1316
+MDM2    Low rating. https://civicdb.org/links/evidence_items/1169
+
+
+
+========================================================================================================================
+================================================ combined repetitive entries	========================================
+========================================================================================================================
+Biomarker   TCGA project    Exclusion rationale Record link
+TP53 	LUSC/LUAD   No prognosis effects.	civicdb.org/links/evidence_items/2999
+STK11	LUSC    Not for lung squamous cell carcinoma.	civicdb.org/links/evidence_items/750
+RB1	    LUSC/LUAD   Low rating.	civicdb.org/links/evidence_items/1313
+PIM1	LUSC/LUAD   Low rating.	civicdb.org/links/evidence_items/1168
+CBLB	LUSC/LUAD   Low rating.	civicdb.org/links/evidence_items/1637
+EZH2	LUSC/LUAD   Non-significant result with lung cancer according to the source publication.	civicdb.org/links/evidence_items/731
+ACTA1	LUAD    Low rating.	civicdb.org/links/evidence_items/1161
+MAP2K1	LUAD    Not established as a prognostic biomarker according to the source publication.	civicdb.org/links/evidence_items/2935
+CD274	COADREAD    Low rating.	civicdb.org/links/evidence_items/4856
+CD274	COADREAD/HNSC   Non-significant prognostic effects.	civicdb.org/links/evidence_items/5507
+NOTCH1	COADREAD    Low rating.	civicdb.org/links/evidence_items/812
+MIR218-1	COADREAD    Non-protein-coding; not present in our multi-omics gene set.	civicdb.org/links/evidence_items/1119
+PTPN11  HNSC    Low rating.  civicdb.org/links/evidence_items/1316
+MDM2    HNSC    Low rating. civicdb.org/links/evidence_items/1169
+
