@@ -14,8 +14,6 @@ from sklearn.preprocessing import StandardScaler
 import argparse
 from models import *
 
-# TODO NOTE
-RESULT_PATH = "/home/athan.li/eval_bk/result/"
 RESULT_PATH = "../result/"
 
 MODS = ['CNV', 'DNAm', 'SNV', 'mRNA', 'miRNA'] # ordered

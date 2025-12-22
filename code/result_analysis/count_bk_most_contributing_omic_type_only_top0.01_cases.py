@@ -2,7 +2,7 @@
 from setups import *
 import pickle as pkl
 
-RES_PATH = "/data/zhaohong/eval_bk/result_09052025/"
+RES_PATH = "/home/athan.li/eval_bk/result/"
 METRIC_ABVS = ['AR','NDCG','RR']
 MULTIOMICS_DATA_TYPES = [
 "CNV+DNAm+mRNA",
