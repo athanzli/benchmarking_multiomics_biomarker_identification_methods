@@ -6,6 +6,29 @@ For more information, see our manuscript *Benchmarking computational methods for
 
 ---
 
+## Installation
+
+### Download the benchmark data
+
+Download `data.zip` from `https://zenodo.org/records/17860662`, unzip it, and place the extracted `data/` folder at the repository root.
+
+At minimum, the following files must exist:
+
+- `data/TCGA/TCGA_cpg2gene_mapping.csv`
+- `data/TCGA/TCGA_miRNA2gene_mapping.csv`
+- `data/bk_set/processed/survival_task_bks.csv`
+- `data/bk_set/processed/drug_response_task_bks.csv`
+- `data/TCGA/<task_name>/*_CNV+DNAm+SNV+mRNA+miRNA.pkl` (for each task you run)
+
+### Dependencies
+
+- Python 3.10+ recommended
+
+```bash
+python -m pip install numpy pandas scipy scikit-learn matplotlib seaborn rbo
+```
+
+
 ## Usage
 
 This section guides you through running your method on our benchmark pipeline. The process consists of two main steps:
@@ -284,30 +307,3 @@ figures/                                    # Comparison plots
 - **PSD** (Percentile Standard Deviation): Variation in biomarker positions across folds (lower = more stable)
 
 ---
-
----
-
-## Installation
-
-### Prerequisites
-
-- Python 3.10+ recommended
-
-### Install dependencies
-
-```bash
-python -m pip install --upgrade pip
-python -m pip install numpy pandas scipy scikit-learn matplotlib seaborn rbo
-```
-
-### Download the benchmark data
-
-Download `data.zip` from `https://zenodo.org/records/17860662`, unzip it, and place the extracted `data/` folder at the repository root.
-
-At minimum, the following files must exist:
-
-- `data/TCGA/TCGA_cpg2gene_mapping.csv`
-- `data/TCGA/TCGA_miRNA2gene_mapping.csv`
-- `data/bk_set/processed/survival_task_bks.csv`
-- `data/bk_set/processed/drug_response_task_bks.csv`
-- `data/TCGA/<task_name>/*_CNV+DNAm+SNV+mRNA+miRNA.pkl` (for each task you run)
