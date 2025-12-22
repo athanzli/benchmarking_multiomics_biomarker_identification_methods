@@ -109,17 +109,13 @@ def run_method_custom(
     import pandas as pd
     import numpy as np
     
-    # Prepare labels
     y_trn = y_train['label'].values
     
-    # Train model
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train.values, y_trn)
     
-    # Extract feature importances
     importances = model.feature_importances_
     
-    # Create output DataFrame
     ft_score = pd.DataFrame(
         index=X_train.columns,
         data={'score': importances}
@@ -288,37 +284,6 @@ figures/                                    # Comparison plots
 - **PSD** (Percentile Standard Deviation): Variation in biomarker positions across folds (lower = more stable)
 
 ---
-
-### Quick start example
-
-```python
-from benchmark_pipeline import run_benchmark
-import pandas as pd
-import numpy as np
-
-# Define your method wrapper
-def my_method(X_train, y_train, X_val, y_val, X_test, y_test, mode: int = 0):
-    """Simple variance-based feature ranking."""
-    # Calculate variance of each feature
-    variances = X_train.var()
-    
-    ft_score = pd.DataFrame(
-        index=X_train.columns,
-        data={'score': variances.values}
-    )
-    return ft_score
-
-# Run on a single dataset and fold for quick testing
-acc_res, sta_res = run_benchmark(
-    run_method_custom_func=my_method,
-    datasets_to_run=[0],                    # Only BRCA survival
-    omics_types=['DNAm', 'mRNA', 'miRNA'],  # Single omics combination
-    fold_to_run=0,                          # Single fold
-)
-
-# Check results - also see generated plots in ./figures/
-print("NDCG scores:", acc_res['NDCG'])
-```
 
 ---
 
