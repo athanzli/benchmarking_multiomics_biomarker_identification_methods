@@ -1,0 +1,17 @@
+name: GENIUS
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+dependencies:
+  - python=3.8
+  - numpy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - torchvision
+  - captum
+  - tqdm
+  - pytorch
+prefix: /home/mateo/anaconda3/envs/GENIUS
