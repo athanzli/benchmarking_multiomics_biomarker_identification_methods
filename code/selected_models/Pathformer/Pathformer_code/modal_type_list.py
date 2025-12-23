@@ -1,0 +1,11 @@
+#TCGA
+RNA=['RNA_all_TPM']
+DNA_methylation=['methylation_count',
+                 'methylation_max',
+                 'methylation_min',
+                 'methylation_mean',
+                 'promoter_methylation_count',
+                 'promoter_methylation_max',
+                 'promoter_methylation_min',
+                 'promoter_methylation_mean']
+DNA_CNV=['CNV_count','CNV_max','CNV_min','CNV_mean','CNV_gene_level']
