@@ -2,7 +2,7 @@
 
 This repository provides a benchmark pipeline to evaluate the biomarker identification performance of multi-omics integration methods. Five real-world TCGA datasets with systematically curated gold-standard biomarker sets are provided for comprehensive evaluation. The user can conveniently run their method and compare its performance with 20 other baselines.
 
-For more information, see our manuscript *Benchmarking computational methods for multi-omics biomarker discovery in cancer*.
+For more information, see our [manuscript](https://doi.org/10.64898/2025.12.18.695266) *Benchmarking computational methods for multi-omics biomarker discovery in cancer*
 
 ---
 
@@ -10,7 +10,7 @@ For more information, see our manuscript *Benchmarking computational methods for
 
 ### Download the benchmark data
 
-Download `data.zip` from `https://zenodo.org/records/17860662`, unzip it, and place the extracted `data/` folder at the repository root.
+Download `data.zip` from https://zenodo.org/records/17860662, unzip, and place the extracted `data/` folder at the repository root.
 
 At minimum, the following files must exist:
 
@@ -228,10 +228,11 @@ When `omics_types=None` (default), the benchmark runs on all 6 tri-omics combina
 #### Custom omics combinations
 
 You are free to set `omics_types` to other combinations beyond the default tri-omics sets. For example:
-- **Two omics**: `['mRNA', 'DNAm']`
-- **Four omics**: `['mRNA', 'DNAm', 'CNV', 'miRNA']`
-- **Five omics**: `['mRNA', 'DNAm', 'CNV', 'SNV', 'miRNA']`
-- **Tri-omics without mRNA**: `['DNAm', 'CNV', 'miRNA']`
+- **One omics type**: `['mRNA']`, `['miRNA']`, etc.
+- **Two omics**: `['mRNA', 'DNAm']`, etc.
+- **Four omics**: `['mRNA', 'DNAm', 'CNV', 'miRNA']`, etc.
+- **Five omics**: `['mRNA', 'DNAm', 'CNV', 'SNV', 'miRNA']`, etc.
+- **Tri-omics without mRNA**: `['DNAm', 'CNV', 'miRNA']`, etc.
 
 In such cases, the generated comparison plots will display your method's results for the specified omics combinations alongside baseline results averaged across all default omics combinations and folds. While you can still get a sense of your method's relative performance, note that these comparisons are not strictly direct since the baselines use different omics combinations.
 
@@ -305,5 +306,9 @@ figures/                                    # Comparison plots
 - **Kendall's tau**: Rank correlation between fold rankings
 - **RBO** (Rank-Biased Overlap): Top-weighted similarity measure
 - **PSD** (Percentile Standard Deviation): Variation in biomarker positions across folds (lower = more stable)
+
+## Reference
+
+Athan Z. Li, Yuxuan Du, Yan Liu, Liang Chen, Ruishan Liu. *Benchmarking computational methods for multi-omics biomarker discovery in cancer*. bioRxiv (2025). doi: https://doi.org/10.64898/2025.12.18.695266
 
 ---

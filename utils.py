@@ -630,40 +630,43 @@ def plot_benchmark_results(
         - ['DNAm','mRNA','miRNA'] -> single combination
         - [['DNAm','mRNA','miRNA'], ['CNV','SNV','mRNA']] -> multiple combinations
         - ['DNAm+mRNA+miRNA', 'CNV+SNV+mRNA'] -> multiple combinations
+        
+        Returns:
+            tuple: (combs, is_fallback_mode)
+                - combs: list of canonical omics combination strings
+                - is_fallback_mode: True if requested combinations are not in baseline results
         """
         if omics_types_input is None:
-            combs = list(TRI_OMICS_COMBS_STR)
-        else:
-            if not isinstance(omics_types_input, (list, tuple)):
-                raise TypeError(
-                    "omics_types must be None, a list of omics types, a list of omics-combination strings, or a list of lists of omics types"
-                )
-            if len(omics_types_input) == 0:
-                raise ValueError("omics_types must be non-empty when provided")
+            return list(TRI_OMICS_COMBS_STR), False
+        
+        if not isinstance(omics_types_input, (list, tuple)):
+            raise TypeError(
+                "omics_types must be None, a list of omics types, a list of omics-combination strings, or a list of lists of omics types"
+            )
+        if len(omics_types_input) == 0:
+            raise ValueError("omics_types must be non-empty when provided")
 
-            first = omics_types_input[0]
-            if isinstance(first, (list, tuple, set)):
-                combs = []
-                for comb in omics_types_input:
-                    if not isinstance(comb, (list, tuple, set)):
-                        raise TypeError("omics_types mixes nested and flat formats")
-                    combs.append('+'.join(sorted([str(x).strip() for x in comb])))
+        first = omics_types_input[0]
+        if isinstance(first, (list, tuple, set)):
+            combs = []
+            for comb in omics_types_input:
+                if not isinstance(comb, (list, tuple, set)):
+                    raise TypeError("omics_types mixes nested and flat formats")
+                combs.append('+'.join(sorted([str(x).strip() for x in comb])))
+        else:
+            if not all(isinstance(x, str) for x in omics_types_input):
+                raise TypeError("omics_types must contain strings")
+            if any('+' in x for x in omics_types_input):
+                combs = [_canonical_omics_comb_str(x) for x in omics_types_input]
             else:
-                if not all(isinstance(x, str) for x in omics_types_input):
-                    raise TypeError("omics_types must contain strings")
-                if any('+' in x for x in omics_types_input):
-                    combs = [_canonical_omics_comb_str(x) for x in omics_types_input]
-                else:
-                    combs = ['+'.join(sorted([x.strip() for x in omics_types_input]))]
+                combs = ['+'.join(sorted([x.strip() for x in omics_types_input]))]
 
         combs = [_canonical_omics_comb_str(c) for c in combs]
+        # Check if any requested combinations are not in baseline results
         invalid = [c for c in combs if c not in TRI_OMICS_COMBS_STR]
-        if invalid:
-            raise ValueError(
-                f"Requested omics combination(s) not found in baseline results: {invalid}. "
-                f"Allowed combinations: {TRI_OMICS_COMBS_STR}"
-            )
-        return combs
+        is_fallback_mode = len(invalid) > 0
+        
+        return combs, is_fallback_mode
 
     def _normalize_folds(fold_to_run_input):
         if fold_to_run_input is None:
@@ -683,8 +686,17 @@ def plot_benchmark_results(
             raise ValueError(f"Requested fold(s) {missing} not available in baseline results. Available folds: {available}")
         return folds_out
 
-    omics_combs_str = _normalize_omics_combs(omics_types)
+    omics_combs_str_your_method, is_fallback_mode = _normalize_omics_combs(omics_types)
     folds = _normalize_folds(fold_to_run)
+    
+    # In fallback mode: baselines use all available combinations, Your Method uses requested combinations
+    # In normal mode: both use the same requested combinations
+    if is_fallback_mode:
+        omics_combs_str_baseline = list(TRI_OMICS_COMBS_STR)
+        print(f"Note: Requested omics combination(s) {omics_combs_str_your_method} not in baseline results. "
+              f"Baselines will be averaged across all available combinations: {omics_combs_str_baseline}")
+    else:
+        omics_combs_str_baseline = omics_combs_str_your_method
     
     # ============================================================================
     # Build baseline DataFrames from bl_acc and bl_sta filtered by omics_combs and folds
@@ -710,13 +722,13 @@ def plot_benchmark_results(
                         f"Baseline results missing model(s) {missing_models} for metric={bl_metric_key}, task={task}, fold={fold}"
                     )
 
-                missing_cols = [c for c in omics_combs_str if c not in df_fold.columns]
+                missing_cols = [c for c in omics_combs_str_baseline if c not in df_fold.columns]
                 if missing_cols:
                     raise ValueError(
                         f"Baseline results missing requested omics combination(s) {missing_cols} for metric={bl_metric_key}, task={task}, fold={fold}"
                     )
 
-                df_sel = df_fold.reindex(index=BASELINES).loc[:, omics_combs_str]
+                df_sel = df_fold.reindex(index=BASELINES).loc[:, omics_combs_str_baseline]
                 per_fold.append(df_sel.to_numpy(dtype=float))  # (n_models, n_omics)
 
             # (n_models, n_omics, n_folds) -> flatten to (n_models, n_omics*n_folds)
@@ -740,12 +752,12 @@ def plot_benchmark_results(
                 raise ValueError(
                     f"Baseline stability results missing model(s) {missing_models} for metric={bl_metric_key}, task={task}"
                 )
-            missing_cols = [c for c in omics_combs_str if c not in df_sta.columns]
+            missing_cols = [c for c in omics_combs_str_baseline if c not in df_sta.columns]
             if missing_cols:
                 raise ValueError(
                     f"Baseline stability results missing requested omics combination(s) {missing_cols} for metric={bl_metric_key}, task={task}"
                 )
-            df_sel = df_sta.reindex(index=BASELINES).loc[:, omics_combs_str]
+            df_sel = df_sta.reindex(index=BASELINES).loc[:, omics_combs_str_baseline]
             data[task] = df_sel.mean(axis=1).to_numpy(dtype=float)
         return pd.DataFrame(data, index=list(BASELINES))
     
@@ -760,7 +772,7 @@ def plot_benchmark_results(
     # prepare Your Method results
     # ============================================================================
     # convert acc_res to DataFrame format matching baselines
-    # acc_res keys are (task, omics_comb, fold), filter by omics_combs_str and folds
+    # acc_res keys are (task, omics_comb, fold), filter by omics_combs_str_your_method and folds
     your_method_acc = {}
     for metric_key, metric_data in acc_res.items():
         your_method_acc[metric_key] = {}
@@ -768,7 +780,7 @@ def plot_benchmark_results(
             task, omics_comb, fold = key
             omics_comb = _canonical_omics_comb_str(omics_comb)
             fold = int(fold)
-            if omics_comb in omics_combs_str and fold in folds:
+            if omics_comb in omics_combs_str_your_method and fold in folds:
                 if task not in your_method_acc[metric_key]:
                     your_method_acc[metric_key][task] = []
                 your_method_acc[metric_key][task].append(val)
@@ -781,7 +793,7 @@ def plot_benchmark_results(
         for key, val in metric_data.items():
             task, omics_comb = key
             omics_comb = _canonical_omics_comb_str(omics_comb)
-            if omics_comb in omics_combs_str:
+            if omics_comb in omics_combs_str_your_method:
                 if task not in your_method_sta[metric_key]:
                     your_method_sta[metric_key][task] = []
                 your_method_sta[metric_key][task].append(val)
@@ -887,7 +899,7 @@ def plot_benchmark_results(
             df_fold = bl_acc[(task_name, bl_metric_key)][fold]
             if models is None:
                 models = df_fold.index.tolist()
-            valid_cols = [c for c in omics_combs_str if c in df_fold.columns]
+            valid_cols = [c for c in omics_combs_str_baseline if c in df_fold.columns]
             for col in valid_cols:
                 for model, val in zip(df_fold.index, df_fold[col].values):
                     records.append({'model': model, 'value': float(val), 'fold': fold, 'omics': col})
@@ -897,7 +909,7 @@ def plot_benchmark_results(
         """Build DataFrame with individual values per omics_comb for a specific task."""
         bl_metric_key = sta_metric_map[metric_key]
         df_sta = bl_sta[(task_name, bl_metric_key)]
-        valid_cols = [c for c in omics_combs_str if c in df_sta.columns]
+        valid_cols = [c for c in omics_combs_str_baseline if c in df_sta.columns]
         records = []
         for col in valid_cols:
             for model, val in zip(df_sta.index, df_sta[col].values):
@@ -910,8 +922,9 @@ def plot_benchmark_results(
         records = []
         for key, val in metric_data.items():
             task, omics_comb, fold = key
-            if task == task_name and omics_comb in omics_combs_str and fold in folds:
-                records.append({'model': 'Your Method', 'value': float(val), 'fold': fold, 'omics': omics_comb})
+            omics_comb_canonical = _canonical_omics_comb_str(omics_comb)
+            if task == task_name and omics_comb_canonical in omics_combs_str_your_method and fold in folds:
+                records.append({'model': 'Your Method', 'value': float(val), 'fold': fold, 'omics': omics_comb_canonical})
         return pd.DataFrame(records)
     
     def build_your_method_sta_individual(metric_key, task_name):
@@ -920,8 +933,9 @@ def plot_benchmark_results(
         records = []
         for key, val in metric_data.items():
             task, omics_comb = key
-            if task == task_name and omics_comb in omics_combs_str:
-                records.append({'model': 'Your Method', 'value': float(val), 'omics': omics_comb})
+            omics_comb_canonical = _canonical_omics_comb_str(omics_comb)
+            if task == task_name and omics_comb_canonical in omics_combs_str_your_method:
+                records.append({'model': 'Your Method', 'value': float(val), 'omics': omics_comb_canonical})
         return pd.DataFrame(records)
 
     # ============================================================================
@@ -1084,7 +1098,7 @@ def plot_benchmark_results(
             df_fold = bl_acc[(task_name, bl_metric_key)][fold]
             if models is None:
                 models = df_fold.index.tolist()
-            valid_cols = [c for c in omics_combs_str if c in df_fold.columns]
+            valid_cols = [c for c in omics_combs_str_baseline if c in df_fold.columns]
             for col in valid_cols:
                 for model, val in zip(df_fold.index, df_fold[col].values):
                     records.append({'model': model, 'value': float(val), 'fold': fold, 'omics': col})
@@ -1096,8 +1110,9 @@ def plot_benchmark_results(
         records = []
         for key, val in metric_data.items():
             task, omics_comb, fold = key
-            if task == task_name and omics_comb in omics_combs_str and fold in folds:
-                records.append({'model': 'Your Method', 'value': float(val), 'fold': fold, 'omics': omics_comb})
+            omics_comb_canonical = _canonical_omics_comb_str(omics_comb)
+            if task == task_name and omics_comb_canonical in omics_combs_str_your_method and fold in folds:
+                records.append({'model': 'Your Method', 'value': float(val), 'fold': fold, 'omics': omics_comb_canonical})
         return pd.DataFrame(records)
     
     def plot_mw_pval_boxplots():
@@ -1237,12 +1252,14 @@ def plot_benchmark_results(
             ax.text(-0.05, 1.02, chr(97 + task_idx), transform=ax.transAxes,
                     fontsize=12, fontweight='bold', va='top')
         
-        # legend
+        # legend - combine baseline and Your Method omics combinations
+        all_omics_in_plot = set(omics_combs_str_baseline) | set(omics_combs_str_your_method)
         legend_handles = []
         for omics, color in OMICS_PALETTE.items():
-            legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', 
-                                             markerfacecolor=color, markersize=8, label=omics))
-        unlisted_omics = [o for o in omics_combs_str if o not in OMICS_PALETTE]
+            if omics in all_omics_in_plot:
+                legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', 
+                                                 markerfacecolor=color, markersize=8, label=omics))
+        unlisted_omics = [o for o in all_omics_in_plot if o not in OMICS_PALETTE]
         if unlisted_omics:
             legend_handles.append(plt.Line2D([0], [0], marker='o', color='w',
                                              markerfacecolor=OMICS_DEFAULT_COLOR, markersize=8, 

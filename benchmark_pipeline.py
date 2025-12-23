@@ -220,9 +220,9 @@ def run_benchmark(
 
                 ## splitting and preparing labels
                 splits = data[f'fold{fold}']
-                X_trn = X.loc[splits=='trn']
-                X_val = X.loc[splits=='val']
-                X_tst = X.loc[splits=='tst']
+                X_trn = X.loc[splits=='trn'].copy()
+                X_val = X.loc[splits=='val'].copy()
+                X_tst = X.loc[splits=='tst'].copy()
                 if task=='survival':
                     y_trn = y.loc[splits=='trn']
                     y_val = y.loc[splits=='val']
